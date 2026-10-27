@@ -1,4 +1,10 @@
-import type { City, ForecastResponse, GeocodingResponse } from "./types.ts";
+import type {
+  City,
+  DailyForecast,
+  DailyForecastResponse,
+  ForecastResponse,
+  GeocodingResponse,
+} from "./types.ts";
 
 const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
@@ -47,4 +53,41 @@ export async function getTemperature(latitude: number, longitude: number): Promi
   }
 
   return temperature;
+}
+
+export async function getForecast(
+  latitude: number,
+  longitude: number,
+  days = 7,
+): Promise<DailyForecast[]> {
+  const url = new URL(FORECAST_URL);
+  url.searchParams.set("latitude", String(latitude));
+  url.searchParams.set("longitude", String(longitude));
+  url.searchParams.set("daily", "temperature_2m_max,temperature_2m_min,weather_code");
+  url.searchParams.set("timezone", "auto");
+  url.searchParams.set("forecast_days", String(days));
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Error de red al consultar el pronóstico (HTTP ${response.status})`);
+  }
+
+  const data = (await response.json()) as DailyForecastResponse;
+  const daily = data.daily;
+  if (
+    !daily ||
+    !Array.isArray(daily.time) ||
+    !Array.isArray(daily.temperature_2m_max) ||
+    !Array.isArray(daily.temperature_2m_min) ||
+    !Array.isArray(daily.weather_code)
+  ) {
+    throw new Error("La API no devolvió un pronóstico válido");
+  }
+
+  return daily.time.map((date, index) => ({
+    date,
+    maxC: daily.temperature_2m_max[index] ?? 0,
+    minC: daily.temperature_2m_min[index] ?? 0,
+    weatherCode: daily.weather_code[index] ?? 0,
+  }));
 }

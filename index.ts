@@ -1,4 +1,4 @@
-import { geocodeCity, getTemperature } from "./src/api.ts";
+import { geocodeCity, getForecast, getTemperature } from "./src/api.ts";
 import {
   addCity,
   loadStore,
@@ -7,7 +7,14 @@ import {
   setDefaultCity,
   setUnit,
 } from "./src/store.ts";
-import { ask, formatCity, formatTemperature, renderMenu, unitLabel } from "./src/ui.ts";
+import {
+  ask,
+  formatCity,
+  formatTemperature,
+  renderForecast,
+  renderMenu,
+  unitLabel,
+} from "./src/ui.ts";
 import type { City, Store } from "./src/types.ts";
 
 function errorMessage(error: unknown): string {
@@ -107,6 +114,20 @@ async function actionSetDefault(store: Store): Promise<void> {
   console.log(`\n  Ciudad default: ${formatCity(city)}\n`);
 }
 
+async function actionForecast(store: Store): Promise<void> {
+  const city = selectCity(store, "Selecciona una ciudad para el pronóstico:");
+  if (!city) return;
+
+  try {
+    const days = await getForecast(city.latitude, city.longitude);
+    console.log("");
+    renderForecast(city, days);
+    console.log("");
+  } catch (error) {
+    console.log(`\n  ${errorMessage(error)}\n`);
+  }
+}
+
 async function actionSettings(store: Store): Promise<void> {
   console.log(`\n  Unidad actual: ${unitLabel(store.unit)}`);
   console.log("  1. Celsius (°C)");
@@ -149,6 +170,9 @@ async function main(): Promise<void> {
         break;
       case "5":
         await actionSetDefault(store);
+        break;
+      case "6":
+        await actionForecast(store);
         break;
       case "8":
         await actionSettings(store);
