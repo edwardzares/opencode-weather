@@ -32,6 +32,7 @@ bun init
 ### Crear el build
 
 ```bash
+bun run build
 bun build --compile --outfile weather index.ts
 ```
 

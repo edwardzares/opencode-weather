@@ -3,18 +3,21 @@
 Bun + TypeScript Weather CLI. Product spec is `README.md:1-48`.
 
 ## Entrypoint & layout
-- `index.ts` — CLI entry (`package.json:module`): `main()` menu loop wiring actions to modules. Uses top-level `await main()`.
-- `src/api.ts` — `geocodeCity()`, `getTemperature()` (always °C; °F computed client-side), `getForecast()` (7-day daily max/min/weather_code).
-- `src/store.ts` — JSON persistence via `Bun.file`/`Bun.write` to `data.json` (repo root, gitignored) + CRUD mutators.
-- `src/ui.ts` — `renderMenu()`, `ask()` (wraps Bun global `prompt()`), `renderForecast()` table, formatting helpers.
-- `src/types.ts` — `City`, `Store`, `DailyForecast`, API response types.
+Layered structure under `src/` (see `estructura.md`); root `index.ts` no longer exists.
+- `src/index.ts` — CLI entry (`package.json:module`): menu loop that dispatches to `actions/`.
+- `src/actions/` — one file per menu action (`getWeather`, `getAllWeather`, `addCity`, `removeCity`, `setDefaultCity`, `getForecast`, `updateSettings`, `listCities`). Actions load/save storage themselves and print via `presentation/output`.
+- `src/presentation/` — `menu.ts` (render + `MenuOption` list), `input.ts` (wraps Bun `prompt()`), `output.ts`.
+- `src/storage/` — `dataFile.ts` (`loadStore`/`saveStore`), `citiesStorage.ts`, `settingsStorage.ts`.
+- `src/api/` — `geocoding.ts` (`geocodeCity`), `weather.ts` (`getCurrentWeather`, `getForecast`).
+- `src/types/` — one type per file (`City`, `Settings`, `Store`, `Weather`, `Geocoding`, `MenuOption`).
+- `src/utils/` — `constants.ts`, `format.ts`, `colors.ts` (ANSI, no-op when not a TTY), `errors.ts`.
 - No tests, lint, CI, or `opencode.json` yet.
 
 ## Commands
-- Run: `bun run index.ts`
+- Run: `bun run src/index.ts` (or `bun run start`)
 - Typecheck: `bun run typecheck` (`bun check`, uses `tsconfig.json`)
 - Install: `bun install` (lockfile: `bun.lock`)
-- Intended distributable per README: single binary via `bun build --compile` (not wired yet).
+- Build binary: `bun run build` → `bun build --compile --outfile weather src/index.ts`
 
 ## Toolchain quirks
 - `tsconfig.json`: `strict`, `moduleResolution: bundler`, `verbatimModuleSyntax: true`, `allowImportingTsExtensions: true`, `noEmit: true`. Use `import type` where appropriate and explicit `.ts` extensions on relative imports.
