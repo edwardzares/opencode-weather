@@ -4,7 +4,7 @@ const LINE = "═".repeat(40);
 
 export function renderMenu(store: Store): void {
   console.log(LINE);
-  console.log("         WEATHER CLI");
+  console.log("              MY CLIMA");
   console.log(LINE);
   console.log("  1. Clima de ciudad default");
   console.log(`  2. Clima de todas las ciudades (${store.cities.length})`);

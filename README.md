@@ -1,4 +1,4 @@
-## Weather CLI APP
+## Weather CLI APP PRO
 
 El objetivo de esta aplicación es que creemos una aplicación de consola que pida que ingresemos la ciudad, Al final, generaremos un binario ejecutable.
 
@@ -34,7 +34,7 @@ Esta es la apariencia que deseamos crear
 
 ```bash
 ════════════════════════════════════════
-         WEATHER CLI
+              MY CLIMA
 ════════════════════════════════════════
   1. Clima de ciudad default
   2. Clima de todas las ciudades (1)
