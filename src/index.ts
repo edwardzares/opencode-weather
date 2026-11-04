@@ -11,7 +11,33 @@ import { showMessage } from "./presentation/output.ts";
 import { loadCities } from "./storage/citiesStorage.ts";
 import { loadSettings } from "./storage/settingsStorage.ts";
 
-async function main(): Promise<void> {
+const actions: Record<string, () => Promise<void>> = {
+  "1": getWeather,
+  "2": getAllWeather,
+  "3": addCity,
+  "4": removeCity,
+  "5": setDefaultCity,
+  "6": getForecast,
+  "8": updateSettings,
+};
+
+export async function dispatchOption(option: string): Promise<boolean> {
+  if (option === "9") {
+    showMessage("¡Hasta luego!");
+    return false;
+  }
+
+  const action = actions[option];
+  if (!action) {
+    showMessage("Opción inválida.");
+    return true;
+  }
+
+  await action();
+  return true;
+}
+
+export async function main(): Promise<void> {
   while (true) {
     const cities = await loadCities();
     const settings = await loadSettings();
@@ -19,37 +45,11 @@ async function main(): Promise<void> {
     console.log("");
     renderMenu(cities, settings);
 
-    const option = askMenuOption();
-
-    switch (option) {
-      case "1":
-        await getWeather();
-        break;
-      case "2":
-        await getAllWeather();
-        break;
-      case "3":
-        await addCity();
-        break;
-      case "4":
-        await removeCity();
-        break;
-      case "5":
-        await setDefaultCity();
-        break;
-      case "6":
-        await getForecast();
-        break;
-      case "8":
-        await updateSettings();
-        break;
-      case "9":
-        showMessage("¡Hasta luego!");
-        return;
-      default:
-        showMessage("Opción inválida.");
-    }
+    const keepRunning = await dispatchOption(askMenuOption());
+    if (!keepRunning) return;
   }
 }
 
-await main();
+if (import.meta.main) {
+  await main();
+}

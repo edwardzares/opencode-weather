@@ -10,14 +10,19 @@ Layered structure under `src/` (see `estructura.md`); root `index.ts` no longer 
 - `src/storage/` — `dataFile.ts` (`loadStore`/`saveStore`), `citiesStorage.ts`, `settingsStorage.ts`.
 - `src/api/` — `geocoding.ts` (`geocodeCity`), `weather.ts` (`getCurrentWeather`, `getForecast`).
 - `src/types/` — one type per file (`City`, `Settings`, `Store`, `Weather`, `Geocoding`, `MenuOption`).
-- `src/utils/` — `constants.ts`, `format.ts`, `colors.ts` (ANSI, no-op when not a TTY), `errors.ts`.
-- No tests, lint, CI, or `opencode.json` yet.
+- `src/utils/` — `constants.ts` (incl. `getDataFile()`), `format.ts`, `colors.ts` (`createColors(enabled)`, no-op when not a TTY), `errors.ts`.
+- `Tests/` — Bun test suites mirroring `src/`: `helpers/`, `utils/`, `api/`, `storage/`, `presentation/`, `actions/`, `index.test.ts`.
+- No lint, CI, or `opencode.json` yet.
 
 ## Commands
 - Run: `bun run src/index.ts` (or `bun run start`)
 - Typecheck: `bun run typecheck` (`bun check`, uses `tsconfig.json`)
 - Install: `bun install` (lockfile: `bun.lock`)
-- Build binary: `bun run build` → `bun build --compile --outfile weather src/index.ts`
+- Test (with coverage gate): `bun run test` (`bun test --coverage Tests`)
+- Test watch: `bun run test:watch`
+- Coverage only: `bun run test:coverage`
+- Build binary: `bun run build` → **typecheck → tests →** `bun run build:app` (`bun build --compile --outfile weather src/index.ts`)
+- Build is blocked if typecheck or any test fails; `bunfig.toml` enforces a **0.8 per-file** line/function coverage threshold.
 
 ## Toolchain quirks
 - `tsconfig.json`: `strict`, `moduleResolution: bundler`, `verbatimModuleSyntax: true`, `allowImportingTsExtensions: true`, `noEmit: true`. Use `import type` where appropriate and explicit `.ts` extensions on relative imports.

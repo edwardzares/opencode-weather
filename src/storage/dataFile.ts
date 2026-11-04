@@ -1,12 +1,12 @@
 import type { Store } from "../types/Store.ts";
-import { DATA_FILE } from "../utils/constants.ts";
+import { getDataFile } from "../utils/constants.ts";
 
 function emptyStore(): Store {
   return { cities: [], defaultCityId: null, unit: "C" };
 }
 
 export async function loadStore(): Promise<Store> {
-  const file = Bun.file(DATA_FILE);
+  const file = Bun.file(getDataFile());
   if (!(await file.exists())) {
     return emptyStore();
   }
@@ -24,5 +24,5 @@ export async function loadStore(): Promise<Store> {
 }
 
 export async function saveStore(store: Store): Promise<void> {
-  await Bun.write(DATA_FILE, `${JSON.stringify(store, null, 2)}\n`);
+  await Bun.write(getDataFile(), `${JSON.stringify(store, null, 2)}\n`);
 }

@@ -2,7 +2,9 @@ export const APP_TITLE = "MY CLIMA";
 export const TITLE_INDENT = 14;
 export const LINE = "═".repeat(40);
 
-export const DATA_FILE = "data.json";
+export function getDataFile(): string {
+  return process.env.WEATHER_DATA_FILE ?? "data.json";
+}
 
 export const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 export const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";

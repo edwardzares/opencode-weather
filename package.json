@@ -4,8 +4,12 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "test": "bun test --coverage Tests",
+    "test:watch": "bun test --watch Tests",
+    "test:coverage": "bun test --coverage Tests",
     "typecheck": "bun check",
-    "build": "bun build --compile --outfile weather src/index.ts",
+    "build": "bun run typecheck && bun run test && bun run build:app",
+    "build:app": "bun build --compile --outfile weather src/index.ts",
     "start": "bun run src/index.ts",
     "dev": "bun run src/index.ts --watch"
   },
