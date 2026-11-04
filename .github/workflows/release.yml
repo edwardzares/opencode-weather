@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+
+      - name: Leer version de package.json
+        id: version
+        run: |
+          VERSION=$(bun -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Verificar si el release ya existe
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "El release ${{ steps.version.outputs.tag }} ya existe. Se omite el build."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Instalar dependencias
+        if: steps.check.outputs.exists == 'false'
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        if: steps.check.outputs.exists == 'false'
+        run: bun run typecheck
+
+      - name: Tests y cobertura
+        if: steps.check.outputs.exists == 'false'
+        run: bun test --coverage Tests
+
+      - name: Compilar binarios
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          mkdir -p dist
+          bun build --compile --target=bun-windows-x64  --outfile dist/weather-windows-x64.exe src/index.ts
+          bun build --compile --target=bun-linux-x64    --outfile dist/weather-linux-x64      src/index.ts
+          bun build --compile --target=bun-darwin-arm64 --outfile dist/weather-darwin-arm64   src/index.ts
+
+      - name: Crear tag y release con binarios
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" dist/* \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes \
+            --target "${{ github.sha }}"

@@ -12,7 +12,7 @@ Layered structure under `src/` (see `estructura.md`); root `index.ts` no longer 
 - `src/types/` — one type per file (`City`, `Settings`, `Store`, `Weather`, `Geocoding`, `MenuOption`).
 - `src/utils/` — `constants.ts` (incl. `getDataFile()`), `format.ts`, `colors.ts` (`createColors(enabled)`, no-op when not a TTY), `errors.ts`.
 - `Tests/` — Bun test suites mirroring `src/`: `helpers/`, `utils/`, `api/`, `storage/`, `presentation/`, `actions/`, `index.test.ts`.
-- No lint, CI, or `opencode.json` yet.
+- `.github/workflows/release.yml` — release automático: lee `version` de `package.json`, valida (typecheck + tests) y publica `v<version>` con los binarios cross-compiled. No lint ni `opencode.json` todavía.
 
 ## Commands
 - Run: `bun run src/index.ts` (or `bun run start`)

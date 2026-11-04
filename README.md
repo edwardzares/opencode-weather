@@ -33,8 +33,18 @@ bun init
 
 ```bash
 bun run build
-bun build --compile --outfile weather index.ts
+bun build --compile --outfile weather src/index.ts
 ```
+
+### Releases automáticos
+
+El workflow `.github/workflows/release.yml` publica un release en GitHub en cada push a `master`, usando la `version` de `package.json` como tag (`vX.Y.Z`):
+
+1. Actualizar `version` en `package.json`.
+2. Hacer push/merge a `master`.
+3. La Action corre typecheck + tests, compila los binarios y crea el tag `vX.Y.Z` con los assets adjuntos: `weather-windows-x64.exe`, `weather-linux-x64` y `weather-darwin-arm64`.
+
+Si el release de esa versión ya existe, el workflow no publica nada. También se puede disparar manualmente desde la pestaña **Actions → Release → Run workflow**.
 
 ### Ejemplo del menú
 Esta es la apariencia que deseamos crear

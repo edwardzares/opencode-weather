@@ -8,6 +8,9 @@ data.json
 out
 dist
 *.tgz
+/weather
+/weather.exe
+/.bun-cache/
 
 # code coverage
 coverage
